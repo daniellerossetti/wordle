@@ -11,8 +11,8 @@ Alison and Danielle
 import pandas as pd 
 import csv
 import random 
-import pygame 
-
+import pygame, sys
+from pygame.locals import*
 
 #Setting up the display
 clock = pygame.time.Clock()
@@ -22,8 +22,8 @@ background_color = (255, 255, 255) #white
 box_color = (211, 211, 211) #light gray
 border_width = 3
 border_color = (0,0,0)
-user_input_color = (135, 206, 235)
-Letter_class_list = []
+user_input_color = (135, 206, 235) #light blue
+button_color = (34,139,34) #green 
 
 class Letter: 
     def __init__ (self, color, text, left_x, top_y): 
@@ -31,6 +31,9 @@ class Letter:
         self.text = text
         self.left_x = left_x
         self.top_y = top_y
+
+    def addText(self, text):
+        font.render(self.text, True, (0,0,0)), (self.left_x + 25, self.top_y + 25)
 
 # Functional component
 
@@ -62,37 +65,163 @@ def every_input(user_word):
 
     return color_change_Dict
 
-# Game Display: 
+#Update game display function: 
 
+
+# Game Display: 
 pygame.init()
+font = pygame.font.Font('freesansbold.ttf', 25)
+text = font.render('ENTER', True, (0,0,0))
+textRect = text.get_rect()
+textRect.center = (300, 737.5)
+display_screen = pygame.display.set_mode([screen_width, screen_height])
+pygame.display.set_caption("WORDLE")
+Letter_class_list = []
+Letter_class_list_input = []
+
+display_screen.fill(background_color)
+
+#set boxes for each letter: 
+for i in range(5): 
+    for j in range(5): 
+        letter_box = Letter(box_color, "", 50 + (j*100),50 + (i*100))
+        Letter_class_list.append(letter_box)
+
+        pygame.draw.rect(display_screen, box_color, (50 + (j*100), 50 + (i*100),100,100))
+        pygame.draw.rect(display_screen, border_color, (50 + (j*100), 50 + (i*100),100,100), width = border_width)
+
+#creating a border 
+pygame.draw.rect(display_screen, border_color, (50, 550, 500, 10))
+
+#section for user input 
+for k in range(5): 
+    letter_box = Letter(box_color, "", 50 + (k*100), 560)
+    Letter_class_list_input.append(letter_box)
+    
+    pygame.draw.rect(display_screen, user_input_color, (50 + (k*100), 560,100,100))
+    pygame.draw.rect(display_screen, border_color, (50 + (k*100), 560,100,100), width = border_width)
+
+#ENTER button
+enter_button = pygame.draw.rect(display_screen, button_color, (200, 700,200,75))
+pygame.draw.rect(display_screen, button_color, (200, 700,200,75), width = border_width)
+
+display_screen.blit(text, textRect)
+
+enter_button = pygame.Rect(200, 700,200,75)
+
+
+#For every round 
+user_text = ""
+user_answer = ""  
 
 not_done = True
+enter_button_active = False
+letter1_input_active = False
+letter2_input_active = False
+letter3_input_active = False
+letter4_input_active = False
+letter5_input_active = False
+play_counter = 0
+
+"""def update(user_answer): 
+    user_answer_char_list = list(user_answer)
+
+    for i in range(5): 
+        txt_surface = font.render(user_answer_char_list[i], True, (0,0,0))
+      #  Letter_class_list[(play_counter*5)+i].text = user_answer_char_list[i]
+        Letter_class_list[(play_counter*5)+i].addText(user_answer_char_list[i])
+       # screen.blit(txt_surface, (Letter_class_list[(play_counter*5)+i].left_x,Letter_class_list[(play_counter*5)+i].top_y))
+
+    play_counter = play_counter + 1
+
+    pygame.display.update() """
+
 
 while not_done:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            not_done = False
 
-    display_screen = pygame.display.set_mode([screen_width, screen_height])
-    pygame.display.set_caption("WORDLE")
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if enter_button.collidepoint(event.pos): 
+                if letter1_input_active and letter2_input_active and letter3_input_active and letter4_input_active and letter5_input_active: 
+                    
+                    user_answer_char_list = list(user_answer)
+                    
+                    txt_surface = font.render(user_answer_char_list[0], True, (0,0,0))
+                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)].left_x + 25, Letter_class_list_input[(play_counter*5)].top_y + 25))
+                    
+                    txt_surface = font.render(user_answer_char_list[1], True, (0,0,0))
+                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+1].left_x + 25, Letter_class_list_input[(play_counter*5)+1].top_y + 25))
 
-    display_screen.fill(background_color)
+                    txt_surface = font.render(user_answer_char_list[2], True, (0,0,0))
+                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+2].left_x + 25, Letter_class_list_input[(play_counter*5)+2].top_y + 25))
 
-    #set boxes for each letter: 
-    for i in range(5): 
-        for j in range(5): 
-            letter_box = Letter(box_color, "", 50 + (j*100),50 + (i*100))
-            Letter_class_list.append(letter_box)
+                    txt_surface = font.render(user_answer_char_list[3], True, (0,0,0))
+                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+3].left_x + 25, Letter_class_list_input[(play_counter*5)+3].top_y + 25))
 
-            pygame.draw.rect(display_screen, box_color, (50 + (j*100), 50 + (i*100),100,100))
-            pygame.draw.rect(display_screen, border_color, (50 + (j*100), 50 + (i*100),100,100), width = border_width)
+                    txt_surface = font.render(user_answer_char_list[4], True, (0,0,0))
+                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+4].left_x + 25, Letter_class_list_input[(play_counter*5)+4].top_y + 25))
 
-    #creating a border 
-    pygame.draw.rect(display_screen, border_color, (50, 453, 500, 10))
+                    play_counter = play_counter + 1
+                    letter1_input_active = False
+                    letter2_input_active = False
+                    letter3_input_active = False
+                    letter4_input_active = False
+                    letter5_input_active = False
+                    enter_button_active = False
+            
+            elif pygame.Rect(Letter_class_list_input[0].left_x,Letter_class_list_input[0].top_y, 100,100).collidepoint(event.pos): 
+                letter1_input_active = True
 
-    #section for user input 
-    for k in range(5): 
-        pygame.draw.rect(display_screen, user_input_color, (50 + (j*100), 463 + (i*100),100,100))
-        pygame.draw.rect(display_screen, border_color, (50 + (j*100), 463 + (i*100),100,100), width = border_width)
+            elif pygame.Rect(Letter_class_list_input[1].left_x,Letter_class_list_input[1].top_y, 100,100).collidepoint(event.pos): 
+                letter2_input_active = True
+
+            elif pygame.Rect(Letter_class_list_input[2].left_x,Letter_class_list_input[2].top_y, 100,100).collidepoint(event.pos): 
+                letter3_input_active = True
+
+            elif pygame.Rect(Letter_class_list_input[3].left_x,Letter_class_list_input[3].top_y, 100,100).collidepoint(event.pos): 
+                letter4_input_active = True
+
+            elif pygame.Rect(Letter_class_list_input[4].left_x,Letter_class_list_input[4].top_y, 100,100).collidepoint(event.pos): 
+                letter5_input_active = True
+
+        if event.type == pygame.KEYDOWN:
+            if letter1_input_active or letter2_input_active or letter3_input_active or letter4_input_active or letter5_input_active: 
+                if event.key == pygame.K_BACKSPACE:
+                    # get text input from 0 to -1 i.e. end.
+                    user_text = user_text[:-1]
+                    user_answer = user_answer[:-1]
+
+                    #should change letter input active to False here technically 
+                else:
+                    user_text = event.unicode
+                    user_answer = user_answer+user_text
+                    
+            txt_surface = font.render(user_text, True, (0,0,0))
+
+            if letter1_input_active == True: 
+
+                if letter2_input_active == True: 
+
+                    if letter3_input_active == True: 
+
+                        if letter4_input_active == True: 
+
+                            if letter5_input_active == True: 
+
+                                display_screen.blit(txt_surface, (Letter_class_list_input[4].left_x + 25,Letter_class_list_input[4].top_y + 25))
+                            else: 
+                                display_screen.blit(txt_surface, (Letter_class_list_input[3].left_x + 25,Letter_class_list_input[3].top_y + 25))
+                        else: 
+                            display_screen.blit(txt_surface, (Letter_class_list_input[2].left_x + 25,Letter_class_list_input[2].top_y + 25))
+                    else: 
+                        display_screen.blit(txt_surface, (Letter_class_list_input[1].left_x + 25,Letter_class_list_input[1].top_y + 25))
+                else: 
+                    display_screen.blit(txt_surface, (Letter_class_list_input[0].left_x + 25,Letter_class_list_input[0].top_y + 25))
 
     pygame.display.update()
-    clock.tick(60)
+    #pygame.display.flip()
+
 
     
