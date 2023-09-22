@@ -20,6 +20,9 @@ screen_width=1000
 screen_height=1000
 background_color = (255, 255, 255) #white
 box_color = (211, 211, 211) #light gray
+yellow = (255, 191, 0)
+green = (60, 179, 113)
+dark_gray = (105,105,105)
 border_width = 3
 border_color = (0,0,0)
 user_input_color = (135, 206, 235) #light blue
@@ -46,22 +49,26 @@ for each_word in df.iterrows():
     word_list.append(each_word[1][0])
 
 word_answer = random.choice(word_list)
+print("The answer to this wordle is: ", word_answer)
 word_answer_char = list(word_answer) #putting the word into a list of individual char
 
 # Part 2: Function (param: user's word guess)(returns a dictionary of what letters of the game board should change)
 
 def every_input(user_word): 
-    color_change_Dict = {green: [], gray: []}
+    color_change_Dict = {"green": [], "yellow": []}
+    og_list = []
     char_list = list(user_word) #putting the word into a list of individual char
     for i in range(len(char_list)): 
         for j in range(len(word_answer_char)): 
             if char_list[i] == word_answer_char[j]:
                 if i == j: 
-                    og_list = color_change_Dict[green]
-                    color_change_Dict[green] = og_list.append(char_list[i])
+                    print("Char: ", char_list[i])
+                    color_change_Dict["green"].append(char_list[i])
+                    print("APPEND: ", color_change_Dict["green"])
+
                 else: 
-                    og_list = color_change_Dict[gray]
-                    color_change_Dict[gray] = og_list.append(char_list[i])
+                    og_list = color_change_Dict["yellow"]
+                    color_change_Dict["yellow"].append(char_list[i])
 
     return color_change_Dict
 
@@ -107,8 +114,7 @@ pygame.draw.rect(display_screen, button_color, (200, 700,200,75), width = border
 
 display_screen.blit(text, textRect)
 
-enter_button = pygame.Rect(200, 700,200,75)
-
+enter_button_rect = pygame.Rect(200, 700,200,75)
 
 #For every round 
 user_text = ""
@@ -143,25 +149,121 @@ while not_done:
             not_done = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if enter_button.collidepoint(event.pos): 
+            if enter_button_rect.collidepoint(event.pos): 
                 if letter1_input_active and letter2_input_active and letter3_input_active and letter4_input_active and letter5_input_active: 
                     
+                    print("User answer is: ", user_answer)
                     user_answer_char_list = list(user_answer)
+                    answer_Dict = every_input(user_answer)
                     
                     txt_surface = font.render(user_answer_char_list[0], True, (0,0,0))
-                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)].left_x + 25, Letter_class_list_input[(play_counter*5)].top_y + 25))
+
+                    print("break 1")
+                    print("Play counter: ", play_counter)
+
+                    for i in range(len(answer_Dict["green"])):
+                        if answer_Dict.get("green")[i] == user_answer_char_list[0]: 
+                            pygame.draw.rect(display_screen, green, (50,(50+(play_counter*100)),100,100))
+                            pygame.draw.rect(display_screen, border_color, (50,(50+(play_counter*100)),100,100), width = border_width)
+                            display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)].left_x + 25, Letter_class_list_input[(play_counter*5)].top_y + 25))
+                            print("green 1")
+
+                        
+                        else: 
+                            for j in range(len(answer_Dict["yellow"])):
+                                if answer_Dict.get("yellow")[j] == user_answer_char_list[0]: 
+                                    pygame.draw.rect(display_screen, green, (50,(50+(play_counter*100)),100,100))
+                                    pygame.draw.rect(display_screen, border_color, (50,(50+(play_counter*100)),100,100), width = border_width)
+                                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)].left_x + 25, Letter_class_list_input[(play_counter*5)].top_y + 25))
+                                
+                                else: 
+                                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)].left_x + 25, Letter_class_list_input[(play_counter*5)].top_y + 25))
                     
+                    #pygame.display.update() unveil each one at a time slowly like they do in the actual game (use the clock)
+
                     txt_surface = font.render(user_answer_char_list[1], True, (0,0,0))
-                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+1].left_x + 25, Letter_class_list_input[(play_counter*5)+1].top_y + 25))
+
+                    for i in range(len(answer_Dict["green"])):
+                        if answer_Dict.get("green")[i] == user_answer_char_list[1]: 
+                            pygame.draw.rect(display_screen, green, (150,(50+(play_counter*100)),100,100))
+                            pygame.draw.rect(display_screen, border_color, (150,(50+(play_counter*100)),100,100), width = border_width)
+                            display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+1].left_x + 25, Letter_class_list_input[(play_counter*5)+1].top_y + 25))
+                            print("green 2")
+
+                        
+                        else: 
+                            for j in range(len(answer_Dict["yellow"])):
+                                if answer_Dict.get("yellow")[j] == user_answer_char_list[1]: 
+                                    pygame.draw.rect(display_screen, green, (150,(50+(play_counter*100)),100,100))
+                                    pygame.draw.rect(display_screen, border_color, (150,(50+(play_counter*100)),100,100), width = border_width)
+                                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+1].left_x + 25, Letter_class_list_input[(play_counter*5)+1].top_y + 25))
+
+                                
+                                else: 
+                                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+1].left_x + 25, Letter_class_list_input[(play_counter*5)+1].top_y + 25))
+                    
+                    #pygame.display.update() unveil each one at a time slowly like they do in the actual game (use the clock)
 
                     txt_surface = font.render(user_answer_char_list[2], True, (0,0,0))
-                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+2].left_x + 25, Letter_class_list_input[(play_counter*5)+2].top_y + 25))
+
+                    for i in range(len(answer_Dict["green"])):
+                        if answer_Dict.get("green")[i] == user_answer_char_list[2]: 
+                            pygame.draw.rect(display_screen, green, (250,(50+(play_counter*100)),100,100))
+                            pygame.draw.rect(display_screen, border_color, (250,(50+(play_counter*100)),100,100), width = border_width)
+                            display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+2].left_x + 25, Letter_class_list_input[(play_counter*5)+2].top_y + 25))
+                        
+                        else: 
+                            for j in range(len(answer_Dict["yellow"])):
+                                if answer_Dict.get("yellow")[j] == user_answer_char_list[2]: 
+                                    pygame.draw.rect(display_screen, green, (250,(50+(play_counter*100)),100,100))
+                                    pygame.draw.rect(display_screen, border_color, (250,(50+(play_counter*100)),100,100), width = border_width)
+                                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+2].left_x + 25, Letter_class_list_input[(play_counter*5)+2].top_y + 25))
+
+                                
+                                else: 
+                                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+2].left_x + 25, Letter_class_list_input[(play_counter*5)+2].top_y + 25))
+                    
+                    #pygame.display.update() unveil each one at a time slowly like they do in the actual game (use the clock)
 
                     txt_surface = font.render(user_answer_char_list[3], True, (0,0,0))
-                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+3].left_x + 25, Letter_class_list_input[(play_counter*5)+3].top_y + 25))
+
+                    for i in range(len(answer_Dict["green"])):
+                        if answer_Dict.get("green")[i] == user_answer_char_list[3]: 
+                            pygame.draw.rect(display_screen, green, (350,(50+(play_counter*100)),100,100))
+                            pygame.draw.rect(display_screen, border_color, (350,(50+(play_counter*100)),100,100), width = border_width)
+
+                            display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+3].left_x + 25, Letter_class_list_input[(play_counter*5)+3].top_y + 25))
+                        
+                        else: 
+                            for j in range(len(answer_Dict["yellow"])):
+                                if answer_Dict.get("yellow")[j] == user_answer_char_list[3]: 
+                                    pygame.draw.rect(display_screen, green, (350,(50+(play_counter*100)),100,100))
+                                    pygame.draw.rect(display_screen, border_color, (350,(50+(play_counter*100)),100,100), width = border_width)
+                                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+3].left_x + 25, Letter_class_list_input[(play_counter*5)+3].top_y + 25))
+
+                                else: 
+                                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+3].left_x + 25, Letter_class_list_input[(play_counter*5)+3].top_y + 25))
+
+                    #pygame.display.update() unveil each one at a time slowly like they do in the actual game (use the clock)
 
                     txt_surface = font.render(user_answer_char_list[4], True, (0,0,0))
-                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+4].left_x + 25, Letter_class_list_input[(play_counter*5)+4].top_y + 25))
+                    
+                    for i in range(len(answer_Dict["green"])):
+                        if answer_Dict.get("green")[i] == user_answer_char_list[4]: 
+                            pygame.draw.rect(display_screen, green, (450,(50+(play_counter*100)),100,100))
+                            pygame.draw.rect(display_screen, border_color, (450,(50+(play_counter*100)),100,100), width = border_width)
+
+                            display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+4].left_x + 25, Letter_class_list_input[(play_counter*5)+4].top_y + 25))
+                        
+                        else: 
+                            for j in range(len(answer_Dict["yellow"])):
+                                if answer_Dict.get("yellow")[j] == user_answer_char_list[4]: 
+                                    pygame.draw.rect(display_screen, green, (450,(50+(play_counter*100)),100,100))
+                                    pygame.draw.rect(display_screen, border_color, (450,(50+(play_counter*100)),100,100), width = border_width)
+                                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+4].left_x + 25, Letter_class_list_input[(play_counter*5)+4].top_y + 25))
+
+                                else: 
+                                    display_screen.blit(txt_surface, (Letter_class_list_input[(play_counter*5)+4].left_x + 25, Letter_class_list_input[(play_counter*5)+4].top_y + 25))
 
                     play_counter = play_counter + 1
                     letter1_input_active = False
@@ -192,6 +294,7 @@ while not_done:
                     # get text input from 0 to -1 i.e. end.
                     user_text = user_text[:-1]
                     user_answer = user_answer[:-1]
+                    pygame.display.update()
 
                     #should change letter input active to False here technically 
                 else:
