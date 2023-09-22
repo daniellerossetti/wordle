@@ -71,19 +71,62 @@ class Game:
             box_list = []
             for j in range(5): # n of columns
                 box = Box(self.display_screen, i, j)
-                box.update_box() # draw box on display
+                box.draw_box() # draw box on display
                 box_list.append(box)
             self.box_grid.append(box_list)
         
         # set where the words will be typed
-        self.current_row = 0 
+        self.curr_row = 0 # based on how many words have been guessed
+        self.curr_col = 0 # based on how many ch have been typed/deleted
+        self.curr_box = self.box_grid[self.curr_row][self.curr_col]
 
     def start():
         return
+    
+    def update_curr_box(self, p, q): # args are by what you want to incr/decr the indexes by
+        self.curr_row = self.curr_row + p
+        self.curr_col = self.curr_col + q
+        self.curr_box = self.box_grid[self.curr_row][self.curr_col]
+    
+    ########### letters are printing on the screen now!!! but not working perfectly
+    def key_pressed(self, event):
+        if event.key == pygame.K_BACKSPACE: 
+            # delete letter and set curr box to previous one
+            self.curr_box.draw_box()
+            if self.curr_col != 0:
+                self.update_curr_box(0, -1)  
+            # todo: fix this so it works in more situations
+        elif event.key == pygame.K_RETURN:
+            # check if there are 5 letters + word in list, then enter + update colors etc
+            # todo: all of this
+            pass
+        else: 
+            # try and catch bc not all other chars will be alphabetic
+            try: 
+                ch = chr(event.key).lower()
+                self.curr_box.add_text(ch, self.font, self.display_screen)
+                if self.curr_col != 4:
+                    self.update_curr_box(0, 1)
+            except:
+                print("aaaah error")
+    
+    ########### this function is not working at all atm
+    def pressed_enter(self):
+        #change the letters that need to be changed
+        for box in self.curr_row:
+            print(box.letter, answer_list[box.j])
+            if box.letter == answer_list[box.j]:
+                box.draw_box(green)
+                box.add_text(box.letter, self.font, self.display_screen)
+            elif box.letter in answer_list:
+                box.draw_box(yellow)
+                box.add_text(box.letter, self.font, self.display_screen)
+
+        # update curr row down
+        self.update_curr_box(1, -4) # -4 so it'll go back to 0? idk if it works
 
 
 # class for each of the boxes on the display
-# each box obj contains a letter obj
 class Box:
     def __init__(self, display_screen, i, j):
         self.display_screen = display_screen
@@ -94,21 +137,15 @@ class Box:
         self.box_color = box_color
         self.letter = None
 
-    def update_box(self, color=box_color):
+    def draw_box(self, color=box_color):
         pygame.draw.rect(self.display_screen, color, (50 + (self.j*100), 50 + (self.i*100),100,100))
         pygame.draw.rect(self.display_screen, border_color, (50 + (self.j*100), 50 + (self.i*100),100,100), width = border_width)
 
-
-class Letter: 
-    def __init__ (self, color, text, left_x, top_y): 
-        self.color = color 
-        self.text = text
-        self.left_x = left_x
-        self.top_y = top_y
-
-    def addText(self, text):
-        font.render(self.text, True, (0,0,0)), (self.left_x + 25, self.top_y + 25)
-
+    def add_text(self, text, font, display_screen):
+        text = font.render(text, True, (0,0,0))
+        display_screen.blit(text, (50 + (self.j*100), 50 + (self.i*100)))
+        self.letter = text
+        
 
 # class for the enter button
 class Button:
@@ -159,6 +196,7 @@ def every_input(user_word):
 
     return color_change_Dict
 
+"""
 Letter_class_list = []
 Letter_class_list_input = []
 
@@ -175,6 +213,7 @@ letter3_input_active = False
 letter4_input_active = False
 letter5_input_active = False
 play_counter = 0
+"""
 
 """def update(user_answer): 
     user_answer_char_list = list(user_answer)
@@ -189,8 +228,7 @@ play_counter = 0
 
     pygame.display.update() """
 
-game = Game()
-
+"""
 while not_done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -373,3 +411,26 @@ while not_done:
 
     pygame.display.update()
     #pygame.display.flip()
+"""
+
+def main():
+
+    game = Game()
+    
+    not_done = True
+    while not_done:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                not_done = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN and game.enter.location.collidepoint(event.pos):
+                game.pressed_enter(event)
+
+            if event.type == pygame.KEYDOWN:
+                game.key_pressed(event)
+
+        pygame.display.update()
+        #pygame.display.flip()
+
+if __name__ == "__main__":
+    main()
