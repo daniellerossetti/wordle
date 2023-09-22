@@ -28,6 +28,77 @@ border_color = (0,0,0)
 user_input_color = (135, 206, 235) #light blue
 button_color = (34,139,34) #green 
 
+# Functional component
+
+# Part 1: Random five letter word (import online database)
+def pick_word():
+    # open pandas dataframe with the words
+    df = pd.read_csv('https://www-cs-faculty.stanford.edu/~knuth/sgb-words.txt')
+
+    # choose number at random in the range of # of rows in dataframe 
+    chosen_idx = random.choice(df.index)
+
+    chosen_word = str(df.iloc[chosen_idx][0])
+    print("The answer to this wordle is: ", chosen_word)
+
+    # putting the word into a list of individual char
+    return list(chosen_word)
+
+
+# called within the init of game class
+def display_setup():
+    pygame.init()
+    font = pygame.font.Font('freesansbold.ttf', 25)
+    display_screen = pygame.display.set_mode([screen_width, screen_height])
+    pygame.display.set_caption("WORDLE")
+
+    display_screen.fill(background_color)
+
+    return display_screen, font   
+
+
+# class the contains the highest level of the game / includes most of everything else 
+# picking the answer, setting up the display, and creating all game objs start here 
+class Game:
+    def __init__(self):
+        self.answer_list = pick_word()
+
+        self.display_screen, self.font = display_setup()
+        self.enter = Button(self.display_screen, self.font)
+
+        self.box_grid = []
+        for i in range(6): # n of rows
+            box_list = []
+            for j in range(5): # n of columns
+                box = Box(self.display_screen, i, j)
+                box.update_box() # draw box on display
+                box_list.append(box)
+            self.box_grid.append(box_list)
+        
+        # set where the words will be typed
+        self.current_row = 0 
+
+    def start():
+        return
+
+
+# class for each of the boxes on the display
+# each box obj contains a letter obj
+class Box:
+    def __init__(self, display_screen, i, j):
+        self.display_screen = display_screen
+                
+        # box's location in the grid
+        self.i = i
+        self.j = j
+        self.box_color = box_color
+        self.letter = None
+
+    def update_box(self, color=box_color):
+        pygame.draw.rect(self.display_screen, color, (50 + (self.j*100), 50 + (self.i*100),100,100))
+        pygame.draw.rect(self.display_screen, border_color, (50 + (self.j*100), 50 + (self.i*100),100,100), width = border_width)
+
+
 class Letter: 
     def __init__ (self, color, text, left_x, top_y): 
         self.color = color 
@@ -38,19 +109,35 @@ class Letter:
     def addText(self, text):
         font.render(self.text, True, (0,0,0)), (self.left_x + 25, self.top_y + 25)
 
-# Functional component
 
-# Part 1: Random five letter word (import online database)
+# class for the enter button
+class Button:
+    def __init__(self, display_screen, font):
+        self.display_screen = display_screen
 
-df = pd.read_csv('https://www-cs-faculty.stanford.edu/~knuth/sgb-words.txt')
+        # box's location in the grid
+        
+        # enter button font
+        text = font.render('ENTER', True, (0,0,0))
+        textRect = text.get_rect()
+        textRect.center = (300, 737.5)
 
-word_list = []
-for each_word in df.iterrows():
-    word_list.append(each_word[1][0])
+        #ENTER button draw
+        pygame.draw.rect(display_screen, button_color, (200, 700,200,75))
+        pygame.draw.rect(display_screen, button_color, (200, 700,200,75), width = border_width)
+        display_screen.blit(text, textRect)
+        
+        self.location = pygame.Rect(200, 700,200,75)
 
-word_answer = random.choice(word_list)
-print("The answer to this wordle is: ", word_answer)
-word_answer_char = list(word_answer) #putting the word into a list of individual char
+
+# for errors after
+class Banner:
+    def __init__(self, display_screen, font):
+        self.display_screen = display_screen
+        self.font = font
+
+    # todo: create errors if word not in list or if word not 5 letters 
+
 
 # Part 2: Function (param: user's word guess)(returns a dictionary of what letters of the game board should change)
 
@@ -72,49 +159,9 @@ def every_input(user_word):
 
     return color_change_Dict
 
-#Update game display function: 
-
-
-# Game Display: 
-pygame.init()
-font = pygame.font.Font('freesansbold.ttf', 25)
-text = font.render('ENTER', True, (0,0,0))
-textRect = text.get_rect()
-textRect.center = (300, 737.5)
-display_screen = pygame.display.set_mode([screen_width, screen_height])
-pygame.display.set_caption("WORDLE")
 Letter_class_list = []
 Letter_class_list_input = []
 
-display_screen.fill(background_color)
-
-#set boxes for each letter: 
-for i in range(5): 
-    for j in range(5): 
-        letter_box = Letter(box_color, "", 50 + (j*100),50 + (i*100))
-        Letter_class_list.append(letter_box)
-
-        pygame.draw.rect(display_screen, box_color, (50 + (j*100), 50 + (i*100),100,100))
-        pygame.draw.rect(display_screen, border_color, (50 + (j*100), 50 + (i*100),100,100), width = border_width)
-
-#creating a border 
-pygame.draw.rect(display_screen, border_color, (50, 550, 500, 10))
-
-#section for user input 
-for k in range(5): 
-    letter_box = Letter(box_color, "", 50 + (k*100), 560)
-    Letter_class_list_input.append(letter_box)
-    
-    pygame.draw.rect(display_screen, user_input_color, (50 + (k*100), 560,100,100))
-    pygame.draw.rect(display_screen, border_color, (50 + (k*100), 560,100,100), width = border_width)
-
-#ENTER button
-enter_button = pygame.draw.rect(display_screen, button_color, (200, 700,200,75))
-pygame.draw.rect(display_screen, button_color, (200, 700,200,75), width = border_width)
-
-display_screen.blit(text, textRect)
-
-enter_button_rect = pygame.Rect(200, 700,200,75)
 
 #For every round 
 user_text = ""
@@ -142,6 +189,7 @@ play_counter = 0
 
     pygame.display.update() """
 
+game = Game()
 
 while not_done:
     for event in pygame.event.get():
@@ -149,7 +197,7 @@ while not_done:
             not_done = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if enter_button_rect.collidepoint(event.pos): 
+            if game.enter.location.collidepoint(event.pos): 
                 if letter1_input_active and letter2_input_active and letter3_input_active and letter4_input_active and letter5_input_active: 
                     
                     print("User answer is: ", user_answer)
@@ -325,6 +373,3 @@ while not_done:
 
     pygame.display.update()
     #pygame.display.flip()
-
-
-    
