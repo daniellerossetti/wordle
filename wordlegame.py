@@ -174,7 +174,7 @@ class Game:
                     self.display_message("Your guess was correct! You won!")
                     self.over = True
                 elif self.curr_row == 5:
-                    self.display_message("You're out of guesses! You lost :(")
+                    self.display_message("The answer was " + self.answer + ", You lost :(")
                     self.over = True
                 else:
                     # move down one row and back to first col
