@@ -1,0 +1,48 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f0f0f0;
+}
+
+#boxGrid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    margin: 20px auto;
+    max-width: fit-content;
+}
+
+.box {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #686767;
+    text-align: center;
+    line-height: 40px;
+    font-size: 1em;
+}
+
+.box.green {
+  background: #60a65a;
+  color: white;
+}
+
+.box.yellow {
+  background: #cdb443;
+  color: white;
+}
+
+.box.grey {
+  background: #717173;
+  color: white;
+}
+
+@media (max-width: 400px) {
+  .cell {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #333;
+    text-align: center;
+    line-height: 40px;
+    font-size: 1em;
+}
+}

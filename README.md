@@ -1,5 +1,3 @@
 # wordle
 
-we're just remaking wordle for fun
-
-requires pandas and pygame
+Redid the wordle game in javascript for the website.
