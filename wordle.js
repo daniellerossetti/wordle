@@ -3,54 +3,52 @@ const guessInput = document.getElementById('guessInput');
 const guessButton = document.getElementById('guessButton');
 
 async function fetchWords(url) {
-
-    const lines = data.split('\n');
-    const headers = lines[0].split(',');
-    return lines.slice(1).map(line => {
-    const values = line.split(',');
-    return headers.reduce((obj, header, index) => {
-      obj[header] = values[index];
-      return obj;
-      }, {});
-    });
-
-    const csvData = await readCSV(url);
-    const parsedData = parseCSV(csvData);
-    console.log(parsedData);
-  }
-
-function parseWords(data) {
-
-}
-
-async function fetchAndParseWords(url) {
-    const csvData = await readCSV(url);
-    const parsedData = parseCSV(csvData);
-    console.log(parsedData);
-}
-
-/** 
-    let wordList = [];
     try {
-        const response = await fetch(url, { method: 'get'});
+        const response = await fetch(url);
         const data = await response.text();
-        wordList = data.split("\n");
+        document.getElementById('output').innerText = data;
+        return data;
     } catch (error) {
-        console.error('Error fetching CSV:', error);
+          console.error('Error in fetchWords:', error);
     }
-    console.log(wordList);
-    return wordList;
-}*/
+    
+    Papa.parse(url, {
+        header: true,
+        complete: function(results) {
+            document.getElementById('output').innerText = JSON.stringify(results.data, null, 2);
+        },
+        error: function(error) {
+            console.error('Error in fetchWords:', error);
+        }
+    });
+    
+}
+
+/** Game class and Box class
+    is Box class necessary?
+    #1 - start game - event listener for the guess button
+    #2 - pick word
+        fetch words
+        parse words
+        pick an index
+    #3 - make 6x5 grid of boxes
+        create 6x5 boxes and put them on a list
+    #4 - handle event -> check if word valid
+    #5 - update grid
+        update boxes color
+        update guess 
+ **/
 
 class Game {
     constructor() {
       // pick word
-      (async () => {(this.words = await fetchWords('5_letter_words.csv'))})()
+      fetchWords('5_letter_words.csv');
+      const results = document.getElementById('output').innerText.split("\n");
+      console.log(results);
+      const i = Math.floor(Math.random() * 496); // number of possible words
+      const answer = results[i];
 
-      console.log(this.words);
-      this.i = Math.floor(Math.random() * 496); // number of possible words
-      this.answer = this.words[this.i];
-      console.log(this.answer);
+      console.log(answer);
       this.answer = 'ARISE';
       
       // make 6x5 grid of boxes
@@ -71,7 +69,6 @@ class Game {
 		  this.updateGrid();
 	  } 
 
-
     initGame() {
       // Event listener for the guess button
       guessButton.addEventListener('click', this);
@@ -89,14 +86,14 @@ class Game {
             //  return false;
             //}
           } else {
-            alert('Please use alphabetic letters only.')
-            return false;
+              alert('Please use alphabetic letters only.')
+              return false;
           }
         } else {
-            alert('Please enter a 5-letter word.');
-            return false;
+              alert('Please enter a 5-letter word.');
+              return false;
         }
-      return true;
+        return true;
     }
 
     // determines which letters are correct
@@ -115,9 +112,6 @@ class Game {
           }
           this.boxes[this.row][y].color = color;
           this.boxes[this.row][y].letter = this.guess[y];
-          
-          this.boxes[this.row][y].box.textContent = this.guess[y];
-          this.boxes[this.row][y].box.classList.add(color);
       }
 
       if (numCorrect === 5) {
@@ -131,11 +125,7 @@ class Game {
           this.won = false;
         }
       }
-
-      if (this.row < 6) {
-          this.row += 1 // move on to next row
-      } 
-    }
+      }
     }
 
     makeGrid() {
@@ -162,28 +152,10 @@ class Box {
   }
 }
 
-let game = new Game();
-game.initGame();
 
-/**Display Area for Feedback
-Adding Animations and Transitions
 
-Animations can make your game feel more dynamic. We'll add some smooth transitions to make the gameplay experience even more engaging.
-User Feedback and Error Handling
-
-A great game communicates with its players. We'll implement clear messages for errors and successes, enhancing the overall user experience.
-Storing Game Data
-Using Local Storage for Game Progress
-
-Don't want players to lose their progress? We'll use the browser's local storage to save their game state, so they can pick up where they left off.
-Reset and Continue Game Options
-
-Giving players the option to reset or continue their game is key. We'll add functionality for both, making your game flexible and user-friendly.
-Making the Game Challenging
-Implementing a Dictionary of Words
-
-A good Wordle game needs a solid word list. We'll explore how to implement a dictionary of words that the game can use to challenge players.
-Difficulty Levels and Daily Challenges
-
-To keep things spicy, we'll add different difficulty levels and daily challenges. This will keep your players coming back for more.
-**/
+async function main(){
+    let game = new Game();
+    game.initGame();
+}
+main().catch(console.log);
